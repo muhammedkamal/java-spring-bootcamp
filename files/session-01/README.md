@@ -52,4 +52,4 @@ In IntelliJ: copy a file into `src`, open it, and press Run (Shift+F10 / Ctrl+R)
 | 5 | Swap two variables | a = 8, b = 3 |
 | 6 (stretch) | EGP change maker | 387 → 200, 100, 50, 20, 10, 5, 1 x2 |
 
-Intern B: finish all six, then start the Java-for-C#-developers sheet.
+Intern B: finish all six, then start the Java-for-C#-developers sheet. See [csharp-to-java-map.md](csharp-to-java-map.md).
