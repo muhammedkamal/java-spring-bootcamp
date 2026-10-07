@@ -13,5 +13,6 @@ public class ScannerTrap {
         String city = in.nextLine();
 
         System.out.println(age + " years old, from \"" + city + "\"");
+        in.close();
     }
 }

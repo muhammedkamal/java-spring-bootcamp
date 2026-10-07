@@ -13,5 +13,6 @@ public class Greeting {
 
         System.out.println("Hi " + name
             + ", next year you'll be " + (age + 1));
+        in.close();
     }
 }

@@ -19,5 +19,6 @@ public class TipCalculator {
         System.out.printf("Total: %.2f%n", total);
         System.out.printf("Each pays: %.2f%n", total / people);
         // What if people is 0? We handle that with if/else on Wednesday.
+        in.close();
     }
 }
