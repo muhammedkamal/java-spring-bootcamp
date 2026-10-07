@@ -7,6 +7,10 @@ public class Lab5Swap {
         int b = 8;
         System.out.println("Before: a = " + a + ", b = " + b);
         // TODO: swap a and b
+        //1
+        int c = a;
+        a = b;
+        b = c;
         System.out.println("After:  a = " + a + ", b = " + b);
     }
 }

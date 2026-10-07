@@ -9,5 +9,26 @@ public class Lab6ChangeMaker {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         // TODO
+        int amount = in.nextInt();
+
+        System.out.println(amount / 200);
+        amount %= 200;
+
+        System.out.println(amount / 100);
+        amount %=100;
+
+        System.out.println(amount / 50);
+        amount %=50;
+
+        System.out.println(amount / 20);
+        amount %=20;
+
+        System.out.println(amount / 10);
+        amount %=10;
+
+        System.out.println(amount / 5);
+
+        System.out.println(amount %=5);
+
     }
 }
