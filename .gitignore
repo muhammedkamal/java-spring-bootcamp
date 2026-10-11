@@ -10,3 +10,6 @@ files/*.zip
 *.pdf
 # stray directories from a failed brace expansion
 files/session-01/{*
+.idea/
+*.iml
+out/
