@@ -2,7 +2,7 @@ package Submissions;
 
 import java.util.Scanner;
 
-public class lap4Timesplit {
+public class lab4Timesplit {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         System.out.print("Enter sec ");
