@@ -2,7 +2,7 @@ package Submissions;
 
 import java.util.Scanner;
 
-public class lap3BMI {
+public class lab3BMI {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
