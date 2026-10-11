@@ -4,31 +4,10 @@ import java.util.Scanner;
 // Denominations: 200, 100, 50, 20, 10, 5, 1
 // Check: 387 -> 200 x1, 100 x1, 50 x1, 20 x1, 10 x1, 5 x1, 1 x2
 // Hint: count = amount / 200; amount = amount % 200; then the next note...
-// (No loops yet: we learn them on Wednesday. Repeat the two lines for each note.)
+// (No loops yet: we learn them in Session 1B. Repeat the two lines for each note.)
 public class Lab6ChangeMaker {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         // TODO
-        int amount = in.nextInt();
-
-        System.out.println(amount / 200);
-        amount %= 200;
-
-        System.out.println(amount / 100);
-        amount %=100;
-
-        System.out.println(amount / 50);
-        amount %=50;
-
-        System.out.println(amount / 20);
-        amount %=20;
-
-        System.out.println(amount / 10);
-        amount %=10;
-
-        System.out.println(amount / 5);
-
-        System.out.println(amount %=5);
-
     }
 }

@@ -6,13 +6,6 @@ public class Lab3Bmi {
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         // TODO: read weight and height as doubles
-        System.out.print("Enter Weight :");
-        double weight = in.nextDouble();
-        in.nextLine();
-        System.out.print("Enter height :");
-        double height = in.nextDouble();
         // TODO: compute and print the BMI with 2 decimal places
-        double BMI = weight / (height * height);
-        System.out.printf("%.2f%n",BMI);
     }
 }
