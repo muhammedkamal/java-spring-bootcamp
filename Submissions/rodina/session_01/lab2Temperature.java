@@ -2,7 +2,7 @@ package Submissions;
 
 import java.util.Scanner;
 
-public class lap2Temperature {
+public class lab2Temperature {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         System.out.print("enter Temperature in cel =");
