@@ -11,6 +11,7 @@ Stack: Java 25 LTS, Spring Boot 4.1.x, Maven, PostgreSQL, Docker.
 | `files/Session00_*.pptx`, `files/Session01_*.pptx`, `files/Session02_*.pptx` | Slides, one deck per session |
 | `files/session-01/` | Session 1A: demos, lab starters, lab solutions |
 | `files/session-02/` | Session 1B: demos, lab starters, lab solutions |
+| `submissions/<name>/` | Your own solutions, sent by Pull Request |
 | `scripts/check-env.sh` | Checks your setup |
 
 ## Setup

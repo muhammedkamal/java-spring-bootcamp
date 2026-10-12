@@ -1,5 +1,3 @@
-package Submissions;
-
 public class lab1personalcard {
     public static void main(String[] args) {
         System.out.println("Name: rodina");
