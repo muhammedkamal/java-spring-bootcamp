@@ -1,5 +1,3 @@
-package kamal.session_02;
-
 import java.util.Scanner;
 
 // Lab 5: Read a year and say whether it is a leap year.

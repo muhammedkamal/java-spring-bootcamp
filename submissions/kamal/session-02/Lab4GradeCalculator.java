@@ -1,5 +1,3 @@
-package kamal.session_02;
-
 import java.util.Scanner;
 
 // Lab 4: Read 3 exam marks (0-100 each), print the average and the grade.

@@ -1,5 +1,3 @@
-package kamal.session_02;
-
 import java.util.Scanner;
 
 // Lab 2: Read n and print its multiplication table from 1 to 10.

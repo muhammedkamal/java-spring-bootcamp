@@ -1,5 +1,3 @@
-package kamal.session_02;
-
 import java.util.Scanner;
 
 // Lab 3: Read a positive int and print the sum of its digits.

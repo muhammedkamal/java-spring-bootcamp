@@ -1,5 +1,3 @@
-package kamal.session_02;
-
 import java.util.Scanner;
 
 // Lab 6 (Week 1 deliverable): console calculator with a menu loop.
@@ -16,6 +14,12 @@ public class Lab6Calculator {
         // TODO: print the menu, read choice
             System.out.printf("Menu:  %n1) Add  %n2) Subtract  %n3) Multiply  %n4) Divide  %n0) Exit%n");
             System.out.print("Write number of operation: ");
+            if (!in.hasNextInt()) {
+                System.out.print("Invalid input! Please enter a number.");
+                in.next();
+                continue;
+            }
+
             int operation = in.nextInt();
             if (operation == 0) {
                 flag = false;
