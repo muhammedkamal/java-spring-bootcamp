@@ -8,9 +8,11 @@ Stack: Java 25 LTS, Spring Boot 4.1.x, Maven, PostgreSQL, Docker.
 
 | Path | What it is |
 | --- | --- |
-| `files/Session00_*.pptx`, `files/Session01_*.pptx`, `files/Session02_*.pptx` | Slides, one deck per session |
+| `files/Session00_*.pptx`, `files/Session01_*.pptx`, `files/Session02_*.pptx`, `files/Session03_*.pptx`, `files/Session04_*.pptx` | Slides, one deck per session |
 | `files/session-01/` | Session 1A: demos, lab starters, lab solutions |
 | `files/session-02/` | Session 1B: demos, lab starters, lab solutions |
+| `files/session-03/` | Session 2A: methods, arrays, strings (demos, labs, solutions) |
+| `files/session-04/` | Session 2B: classes and objects (demos, labs, solutions) |
 | `submissions/<name>/` | Your own solutions, sent by Pull Request |
 | `scripts/check-env.sh` | Checks your setup |
 

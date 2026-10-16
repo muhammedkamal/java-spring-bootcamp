@@ -15,3 +15,6 @@ files/session-01/{*
 *.iml
 out/
 *.class
+
+# instructor-only quizzes and keys
+quizzes/
