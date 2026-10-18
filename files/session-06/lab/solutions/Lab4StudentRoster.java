@@ -1,0 +1,99 @@
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+
+// Lab 4: Remove duplicates, sort and group students with collections. Reference solution.
+public class Lab4StudentRoster {
+    public static void main(String[] args) {
+        List<Student> raw = List.of(
+            new Student(3, "Sara", 88),
+            new Student(1, "Omar", 92),
+            new Student(2, "Ali", 88),
+            new Student(1, "Omar", 92),
+            new Student(4, "Nour", 55),
+            new Student(5, "Hany", 74)
+        );
+
+        Set<Student> unique = new LinkedHashSet<>(raw);     // keeps first-seen order
+        System.out.println(raw.size() + " -> " + unique.size());
+
+        List<Student> sorted = new ArrayList<>(unique);
+        sorted.sort(new ByMarkThenName());
+        System.out.println(sorted);
+
+        Map<String, List<Student>> groups = byGrade(sorted);
+        System.out.println(groups);
+    }
+
+    static Map<String, List<Student>> byGrade(List<Student> students) {
+        Map<String, List<Student>> groups = new TreeMap<>();
+        for (Student s : students) {
+            String g = s.grade();
+            if (!groups.containsKey(g)) {
+                groups.put(g, new ArrayList<>());
+            }
+            groups.get(g).add(s);
+        }
+        return groups;
+    }
+}
+
+class ByMarkThenName implements Comparator<Student> {
+    @Override
+    public int compare(Student a, Student b) {
+        int byMark = Integer.compare(b.getMark(), a.getMark());
+        if (byMark != 0) {
+            return byMark;
+        }
+        return a.getName().compareTo(b.getName());
+    }
+}
+
+class Student {
+    private final int id;
+    private final String name;
+    private final int mark;
+
+    Student(int id, String name, int mark) {
+        this.id = id;
+        this.name = name;
+        this.mark = mark;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    int getMark() {
+        return mark;
+    }
+
+    String grade() {
+        if (mark >= 90) return "A";
+        if (mark >= 75) return "B";
+        if (mark >= 60) return "C";
+        return "F";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Student other)) return false;
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return name + "(" + mark + ")";
+    }
+}
