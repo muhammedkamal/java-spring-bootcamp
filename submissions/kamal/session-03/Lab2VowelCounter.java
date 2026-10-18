@@ -1,4 +1,3 @@
-import java.util.Locale;
 import java.util.Scanner;
 
 // Lab 2: Count the vowels (a e i o u, either case) in a line of text.

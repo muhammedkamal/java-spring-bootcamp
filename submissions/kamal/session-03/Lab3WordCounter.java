@@ -15,11 +15,11 @@ public class Lab3WordCounter {
         in.close();
     }
     public static int countWords(String text){
-        String[] textArr = text.trim().split("\\s+");
-        int count = 0;
-        for(String a : textArr){
-            count++;
+        if (text.trim().isEmpty()) {
+            return 0;
         }
-        return count;
+
+        String[] textArr = text.trim().split("\\s+");
+        return textArr.length;
     }
 }

@@ -10,7 +10,7 @@ public class Lab2MultiplicationTable {
         int n = in.nextInt();
         // TODO: loop 1..10 and print "n x i = result"
         for (int x = 1; x <= 10; x++){
-            System.out.printf("%d × %d = %d, ",n,x,n*x);
+            System.out.printf("%d × %d = %d%n",n,x,n*x);
         }
         in.close();
     }

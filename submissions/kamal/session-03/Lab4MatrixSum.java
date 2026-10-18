@@ -18,8 +18,8 @@ public class Lab4MatrixSum {
     }
     public static int sumAll(int[][] m){
         int sum = 0;
-        for (int i = 0; i <= m.length-1; i++){
-            for (int j = 0 ;j <= m.length-1; j++){
+        for (int i = 0; i < m.length; i++){
+            for (int j = 0 ;j < m[i].length; j++){
                 sum += m[i][j];
             }
         }
@@ -29,7 +29,7 @@ public class Lab4MatrixSum {
         int[] sum = new int[m.length] ;
         for (int i =0; i < m.length; i++){
             int rowSum=0;
-            for (int j = 0 ;j < m.length; j++){
+            for (int j = 0 ;j < m[i].length; j++){
                 rowSum += m[i][j];
             }
             sum[i] = rowSum;

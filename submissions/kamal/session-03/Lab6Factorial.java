@@ -12,15 +12,15 @@
             // TODO: read n, validate, print both results
             System.out.print("Write a number: ");
             int n = in.nextInt();
-            System.out.println(factorialLoop(n));
-            System.out.println(factorialRecursive(n));
+            if (n < 0 || n > 20) {
+                System.out.println("Out of range");
+            } else {
+                System.out.println(factorialLoop(n));
+                System.out.println(factorialRecursive(n));
+            }
             in.close();
         }
         public static long factorialLoop(int n){
-            if (n < 0 || n > 20){
-                System.out.println("Out of range");
-                return 1;
-            }
             long sum = 1;
             for (int i = 1; i <= n; i++){
                 sum *= i;
@@ -29,10 +29,6 @@
         }
         public static long factorialRecursive(int n){
             if (n == 0) return 1;
-            if (n < 0 || n > 20){
-                System.out.println("Out of range");
-                return 1;
-            }
             return n * factorialRecursive(n - 1 );
         }
     }

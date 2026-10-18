@@ -6,8 +6,13 @@ public class Lab7SecondLargest {
 
     public static void main(String[] args) {
         // TODO: call secondLargest on the three check arrays and print the results
-        int[] arr = {4, 9, 2, 9, 7};
-        System.out.println(secondLargest(arr));
+        int[] arr1 = {4, 9, 2, 9, 7};
+        int[] arr2 = {-3, -8, -1};
+        int[] arr3 = {5, 5, 5};
+
+        System.out.println(secondLargest(arr1));
+        System.out.println(secondLargest(arr2));
+        System.out.println(secondLargest(arr3));
     }
     public static int secondLargest(int[] a){
         int largest = Integer.MIN_VALUE;

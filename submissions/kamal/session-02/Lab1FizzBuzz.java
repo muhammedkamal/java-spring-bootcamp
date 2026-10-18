@@ -6,13 +6,13 @@ public class Lab1FizzBuzz {
         // TODO: for loop from 1 to 30, one value per line
         for (int x = 1; x <= 30; x++){
             if (x % 5 == 0 && x % 3 == 0){
-                System.out.print(" FizzBuzz ");
+                System.out.println("FizzBuzz");
             } else if (x % 5 == 0 ) {
-                System.out.print(" Buzz ");
+                System.out.println("Buzz");
             } else if (x % 3 == 0) {
-                System.out.print(" Fizz ");
+                System.out.println("Fizz");
             }else {
-                System.out.print(" " + x);
+                System.out.println(x);
             }
         }
     }
