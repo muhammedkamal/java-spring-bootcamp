@@ -1,97 +1,62 @@
 
 
-// Lab 6 (Week 1 deliverable): console calculator with a menu loop.
-// Menu: 1) Add  2) Subtract  3) Multiply  4) Divide  0) Exit
-// After each operation, show the menu again until the user picks 0.
-// Rules: division by zero prints "Cannot divide by zero"; unknown choice prints "Unknown option".
-// Hint: see demos/FloorMenu.java for the loop shape.
 import java.util.Scanner;
-
 public class Lab6Calculator {
-
     public static void main(String[] args) {
-
-        Scanner input = new Scanner(System.in);
-
-        int choice;
-
-        do {
-
-            System.out.println("\n=== Calculator Menu ===");
-
-            System.out.println("1. +");
-
-            System.out.println("2. -");
-
-            System.out.println("3. *");
-
-            System.out.println("4. /");
-
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter first number: ");
+        if (!scanner.hasNextDouble()) {
+            System.out.println("Invalid number");
+            scanner.close();
+            return;
+        }
+        double num1 = scanner.nextDouble();
+        System.out.print("Enter second number: ");
+        if (!scanner.hasNextDouble()) {
+            System.out.println("Invalid number");
+            scanner.close();
+            return;
+        }
+        double num2 = scanner.nextDouble();
+        int choice = -1;
+        while (choice != 0) {
+            System.out.println("Choose an operation:");
+            System.out.println("1. Addition");
+            System.out.println("2. Subtraction");
+            System.out.println("3. Multiplication");
+            System.out.println("4. Division");
             System.out.println("0. Exit");
-
-            System.out.print("Choose an operation: ");
-
-            choice = input.nextInt();
-
-            if (choice >= 1 && choice <= 4) {
-
-                System.out.print("Enter first number: ");
-
-                double num1 = input.nextDouble();
-
-                System.out.print("Enter second number: ");
-
-                double num2 = input.nextDouble();
-
-                switch (choice) {
-
-                    case 1:
-
-                        System.out.println("Result = " + (num1 + num2));
-
-                        break;
-
-                    case 2:
-
-                        System.out.println("Result = " + (num1 - num2));
-
-                        break;
-
-                    case 3:
-
-                        System.out.println("Result = " + (num1 * num2));
-
-                        break;
-
-                    case 4:
-
-                        if (num2 == 0) {
-
-                            System.out.println("Cannot divide by zero");
-
-                        } else {
-
-                            System.out.println("Result = " + (num1 / num2));
-
-                        }
-
-                        break;
-
-                }
-
-            } else if (choice != 0) {
-
-                System.out.println("Invalid choice");
-
+            System.out.print("Your choice: ");
+            if (!scanner.hasNextInt()) {
+                System.out.println("Unknown option");
+                scanner.next();
+                continue;
             }
-
-        } while (choice != 0);
-
-        System.out.println("Calculator closed.");
-
-        input.close();
-
+            choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    System.out.println("Result: " + (num1 + num2));
+                    break;
+                case 2:
+                    System.out.println("Result: " + (num1 - num2));
+                    break;
+                case 3:
+                    System.out.println("Result: " + (num1 * num2));
+                    break;
+                case 4:
+                    if (num2 != 0) {
+                        System.out.println("Result: " + (num1 / num2));
+                    } else {
+                        System.out.println("Cannot divide by zero");
+                    }
+                    break;
+                case 0:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Unknown option");
+            }
+        }
+        scanner.close();
     }
-
 }
-

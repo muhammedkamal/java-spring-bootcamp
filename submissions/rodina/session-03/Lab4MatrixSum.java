@@ -28,7 +28,7 @@ public class Lab4MatrixSum {
             {4, 5, 6},
             {7, 8, 9}
         };
-        System.out.println("Total sum" + sumAll(m));
+        System.out.println("Total sum: " + sumAll(m));
         int[] sums =rowSums(m);
         for (int i =0;i<sums.length;i++){
             System.out.println("Row"+(i+1)+"sum:"+sums[i]);

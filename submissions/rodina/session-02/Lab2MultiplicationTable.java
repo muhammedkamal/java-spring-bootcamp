@@ -9,7 +9,7 @@ public class Lab2MultiplicationTable {
         System.out.println("Enter a Number");
         int number = input.nextInt();
         for (int i = 1; i <= 10; i++) {
-            System.out.println(number + "x" + i + "=" + (number * i));
+            System.out.println(number + " x " + i + " = " + (number * i));
         }
         input.close();
     }
