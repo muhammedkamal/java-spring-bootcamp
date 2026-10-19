@@ -22,6 +22,8 @@ Each demo file has its main class first, then the helper classes. `java File.jav
 | `ObjectMethods.java` | `toString`, `equals`, `hashCode` |
 | `ArrayOfObjects.java` | Array of objects, null slots |
 
+To see `StackHeap.java` run line by line, open `visuals/StackHeap.html` in a browser. Press Next or the right arrow key to step through, or Play to run it on its own.
+
 ## Labs
 
 Starters are in `lab/starter/`.
