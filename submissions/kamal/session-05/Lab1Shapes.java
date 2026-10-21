@@ -19,10 +19,16 @@ public class Lab1Shapes {
         };
 
         // TODO: print every shape, then find and print the one with the largest area
+        Shape largest = shapes[0];
         for (Shape shape: shapes){
             System.out.println(shape);
+            if (shape.area() > largest.area()) {
+                largest = shape;
+            }
         }
+        System.out.println("Largest: " + largest.getName());
     }
+
 }
 
 // TODO: abstract class Shape
@@ -33,7 +39,9 @@ abstract class Shape{
     }
     abstract double area();
     abstract double perimeter();
-
+    String getName(){
+        return name;
+    }
     @Override
     public String toString() {
         return name + ": " + "area " + area() + ", " + "perimeter " + perimeter();

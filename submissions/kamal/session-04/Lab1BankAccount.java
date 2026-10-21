@@ -1,4 +1,3 @@
-
 // Lab 1: BankAccount with deposit and withdraw rules.
 // Rules: deposit and withdraw must be positive; withdraw cannot exceed the balance.
 //        Both return true when they worked, false when they were rejected.

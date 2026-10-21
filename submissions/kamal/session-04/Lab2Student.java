@@ -1,8 +1,4 @@
-//import java.util.Objects;
-//
-
 import java.util.Objects;
-
 //// Lab 2: Student with validation, toString and equals.
 //// Rules: mark is kept between 0 and 100 (clamp). Two students are equal when their id is equal.
 ////        grade(): >= 90 A, >= 75 B, >= 60 C, otherwise Fail.

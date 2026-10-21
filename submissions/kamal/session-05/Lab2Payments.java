@@ -28,6 +28,70 @@ public class Lab2Payments {
 }
 
 // TODO: interface PaymentMethod
+interface PaymentMethod{
+    boolean pay(double amount);
+    String name();
+}
 // TODO: class CardPayment implements PaymentMethod
+class CardPayment implements PaymentMethod{
+    private String brand;
+    private double limit;
+    private double used;
+    CardPayment(String brand, double limit){
+        this.brand = brand;
+        this.limit = limit;
+    }
+    @Override
+    public boolean pay(double amount) {
+        double charge = amount + amount * 0.02;
+        if (amount <= 0 || used + charge > limit){
+            return false;
+        }
+        used += charge;
+        return true;
+    }
+    double getUsed(){
+        return used;
+    }
+    @Override
+    public String name() {
+        return "Card (" + brand + ")";
+    }
+}
 // TODO: class WalletPayment implements PaymentMethod
+class WalletPayment implements PaymentMethod{
+    private String provider;
+    private double balance;
+    WalletPayment(String provider,double balance){
+        this.provider = provider;
+        this.balance = balance;
+    }
+    @Override
+    public boolean pay(double amount) {
+        if (amount <= 0 || balance < amount){
+            return false;
+        }
+        balance -= amount;
+        return true;
+    }
+    double getBalance(){
+        return balance;
+    }
+    @Override
+    public String name() {
+        return "Wallet (" + provider +")";
+    }
+}
 // TODO: class Checkout with static boolean pay(double amount, PaymentMethod[] methods)
+class Checkout {
+    static boolean pay(double amount, PaymentMethod[] methods) {
+        for (PaymentMethod method : methods) {
+            if (method.pay(amount)) {
+                System.out.println(amount + " paid with " + method.name());
+                return true;
+            }
+        }
+        System.out.println(amount + " declined by all methods");
+        return false;
+        }
+}
