@@ -9,19 +9,35 @@ cd files/session-08
 docker compose up -d
 ```
 
-This starts PostgreSQL 17 with a database called `shop` (user `postgres`, password `postgres`, port 5432). Connect with DBeaver or the IntelliJ Database tool, or:
+This starts PostgreSQL 17 with a database called `shop` (user `postgres`, password `postgres`, port 5432), plus two web tools to browse the tables:
+
+| Tool | URL | Login |
+| --- | --- | --- |
+| Adminer (like phpMyAdmin) | <http://localhost:8081> | System PostgreSQL, server `db`, user and password `postgres`, database `shop` |
+| pgAdmin | <http://localhost:5050> | No pgAdmin login. Open Servers > shop (Docker) and type the password `postgres` |
+
+The server is `db`, not `localhost`, because the tools run in their own containers and reach the database by its service name. pgAdmin finds the server through `pgadmin/servers.json`.
+
+You can also connect with DBeaver or the IntelliJ Database tool (host `localhost`), or with psql:
 
 ```bash
 docker compose exec db psql -U postgres -d shop
 ```
 
-Load the data by running `sql/01_schema.sql` and then `sql/02_data.sql`. Re-run both any time to reset the data.
+Load the data by running `sql/01_schema.sql` and then `sql/02_data.sql`. Re-run both any time to reset the data. From the terminal:
+
+```bash
+docker compose exec -T db psql -U postgres -d shop < sql/01_schema.sql
+docker compose exec -T db psql -U postgres -d shop < sql/02_data.sql
+```
+
+No Docker, the web tools, and troubleshooting: see slides 12 to 16.
 
 ## Demos
 
 | File | Topic |
 | --- | --- |
-| `demos/HttpBasics.java` | A tiny server and client: GET, POST, DELETE, 405, 401 and status codes (`java demos/HttpBasics.java`) |
+| `demos/HttpBasics.java` | A tiny server and client: GET, POST, DELETE, 400, 405, 401 and status codes (`java demos/HttpBasics.java`; add `serve` to keep it running for Postman) |
 | `demos/JdbcIdea.java` | Plain JDBC: `PreparedStatement`, `ResultSet`, a transaction |
 | `sql/01_schema.sql` | Shop schema: customers, products, orders, order_items |
 | `sql/02_data.sql` | Sample data |
@@ -31,6 +47,17 @@ Load the data by running `sql/01_schema.sql` and then `sql/02_data.sql`. Re-run 
 | `sql/06_indexes_transactions.sql` | Index, `BEGIN` / `ROLLBACK`, `DENSE_RANK` |
 
 `03_crud.sql` changes the data (prices go up 10 percent). Reset with `01` and `02` before the lab.
+
+## Postman demo collection
+
+Import `postman/Session08_HTTP_Demo.postman_collection.json` into Postman (File > Import). It has two folders:
+
+| Folder | Needs |
+| --- | --- |
+| 1. HttpBasics (local) | `java demos/HttpBasics.java serve` running in a terminal (port 8089) |
+| 2. JSONPlaceholder (public) | Internet only |
+
+Each request has a Tests tab that checks its status code (200, 201, 204, 400, 401, 404, 405). Run the whole collection from the Runner to show them all at once.
 
 ## JDBC needs the driver
 

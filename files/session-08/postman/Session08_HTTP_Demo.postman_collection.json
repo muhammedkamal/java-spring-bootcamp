@@ -1,0 +1,583 @@
+{
+  "info": {
+    "_postman_id": "51701a94-ee68-597e-b39b-39f0fb213588",
+    "name": "Session 08 - HTTP and REST demo",
+    "description": "Demo collection for Session 8.\n\n1. HttpBasics (local): start the server first with `java demos/HttpBasics.java serve` from files/session-08.\n2. JSONPlaceholder (public): needs internet, no setup.\n\nEvery request has a Tests tab that checks the status code. Run the whole collection with the Runner to see them all pass.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. HttpBasics (local)",
+      "description": "Start first: java demos/HttpBasics.java serve",
+      "item": [
+        {
+          "name": "GET /books (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"returns two books\", () => pm.expect(pm.response.json()).to.have.length(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{localBase}}/books",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "books"
+              ]
+            },
+            "description": "Read the list. Look at the Content-Type header in the response."
+          }
+        },
+        {
+          "name": "POST /books (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{localBase}}/books",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "books"
+              ]
+            },
+            "description": "Create. 201 Created, not 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Persuasion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /books without title (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{localBase}}/books",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "books"
+              ]
+            },
+            "description": "Bad body: the client made the mistake, so 4xx.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Persuasion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /books/1 (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{localBase}}/books/1",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "books",
+                "1"
+              ]
+            },
+            "description": "Done, nothing to send back: the body is empty."
+          }
+        },
+        {
+          "name": "PUT /books (405)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 405\", () => pm.response.to.have.status(405));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{localBase}}/books",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "books"
+              ]
+            },
+            "description": "The server does not support this method on this URL.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Emma\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /secret (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{localBase}}/secret",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "secret"
+              ]
+            },
+            "description": "Login required."
+          }
+        },
+        {
+          "name": "GET /authors (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{localBase}}/authors",
+              "host": [
+                "{{localBase}}"
+              ],
+              "path": [
+                "authors"
+              ]
+            },
+            "description": "No such resource. The JDK server answers with HTML here, not JSON: always check Content-Type."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. JSONPlaceholder (public)",
+      "description": "https://jsonplaceholder.typicode.com: a free fake REST API.",
+      "item": [
+        {
+          "name": "GET /posts (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"100 posts\", () => pm.expect(pm.response.json()).to.have.length(100));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts"
+              ]
+            },
+            "description": "A collection: 100 posts."
+          }
+        },
+        {
+          "name": "GET /posts/1 (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"id is 1\", () => pm.expect(pm.response.json().id).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts/1",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            },
+            "description": "One item: the id is in the path."
+          }
+        },
+        {
+          "name": "GET /posts?userId=1 (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"all from user 1\", () => pm.response.json().forEach(p => pm.expect(p.userId).to.eql(1)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts?userId=1",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Filter: filters go in the query string."
+          }
+        },
+        {
+          "name": "GET /posts/1/comments (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts/1/comments",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "1",
+                "comments"
+              ]
+            },
+            "description": "A nested resource: the comments of post 1."
+          }
+        },
+        {
+          "name": "POST /posts (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"new id returned\", () => pm.expect(pm.response.json().id).to.eql(101));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{publicBase}}/posts",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts"
+              ]
+            },
+            "description": "Create. JSONPlaceholder fakes it: you get id 101 back, but nothing is saved.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hello REST\",\n  \"body\": \"My first POST\",\n  \"userId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /posts/1 (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{publicBase}}/posts/1",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            },
+            "description": "Replace the whole item.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"title\": \"Replaced\",\n  \"body\": \"PUT replaces the whole post\",\n  \"userId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /posts/1 (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{publicBase}}/posts/1",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            },
+            "description": "Change part of the item.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Only the title changes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /posts/1 (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts/1",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "1"
+              ]
+            },
+            "description": "Delete. This API answers 200 with {}; many APIs answer 204."
+          }
+        },
+        {
+          "name": "GET /posts/9999 (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{publicBase}}/posts/9999",
+              "host": [
+                "{{publicBase}}"
+              ],
+              "path": [
+                "posts",
+                "9999"
+              ]
+            },
+            "description": "Trigger a 404: the id does not exist."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "localBase",
+      "value": "http://localhost:8089"
+    },
+    {
+      "key": "publicBase",
+      "value": "https://jsonplaceholder.typicode.com"
+    }
+  ]
+}
