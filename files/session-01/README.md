@@ -1,6 +1,6 @@
 # Session 1 code pack: Your First Java Programs
 
-Week 1, Monday. Matches the slides `Session01_Your_First_Java_Programs.pptx`.
+Week 1, Session 1A (Wednesday). Matches the slides `Session01_Your_First_Java_Programs.pptx`.
 
 ## Run any file
 
@@ -41,7 +41,7 @@ In IntelliJ: copy a file into `src`, open it, and press Run (Shift+F10 / Ctrl+R)
 
 ## lab/ (afternoon, 14:00-16:45)
 
-`starter/` has a file per exercise with TODOs. `solutions/` is for the instructor: share it after the lab.
+`starter/` has a file per exercise with TODOs. `solutions/` has the reference answers: compare after you finish.
 
 | Lab | Task | Check your answer |
 | --- | --- | --- |

@@ -3,10 +3,21 @@
 # instructor-only
 INSTRUCTOR-NOTES.md
 Java + Spring Boot Internship Course*.md
-files/**/lab/solutions/
 files/*.zip
 # unrelated documents
 *.docx
 *.pdf
 # stray directories from a failed brace expansion
 files/session-01/{*
+
+# IDE and build output
+.idea/
+*.iml
+out/
+*.class
+
+# instructor-only quizzes and keys
+quizzes/
+
+# instructor-only Arabic transcripts
+transcripts/

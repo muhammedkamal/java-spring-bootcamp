@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stack and Heap</title>
+<style>
+  :root {
+    --bg: #f6f7fb; --panel: #ffffff; --ink: #1d2433; --muted: #5d6b82; --line: #d9dee8;
+    --accent: #6c4cf5; --accent-soft: #ece8ff; --stack: #0f8a8f; --stack-soft: #e2f5f5;
+    --heap: #c2700a; --heap-soft: #fdf0dc; --danger: #c62f3c; --danger-soft: #fde6e8;
+    --code-bg: #141a28; --code-ink: #eef2fa; --code-hl: #2b3550; --code-kw: #b9a6ff;
+    --code-str: #9ef0c9; --code-num: #ffd58a; --code-com: #8fd8db;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f131c; --panel: #171d2a; --ink: #e8ecf4; --muted: #9aa6bb; --line: #2a3346;
+      --accent: #a08bff; --accent-soft: #2a2450; --stack: #4fd1d6; --stack-soft: #123234;
+      --heap: #ffb54d; --heap-soft: #3a2a12; --danger: #ff7a85; --danger-soft: #3d1a1f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f131c; --panel: #171d2a; --ink: #e8ecf4; --muted: #9aa6bb; --line: #2a3346;
+    --accent: #a08bff; --accent-soft: #2a2450; --stack: #4fd1d6; --stack-soft: #123234;
+    --heap: #ffb54d; --heap-soft: #3a2a12; --danger: #ff7a85; --danger-soft: #3d1a1f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1240px; margin: 0 auto; padding: 20px 16px 32px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .code { background: var(--code-bg); border-radius: 10px; padding: 10px 0; overflow-x: auto;
+          font: 14px/1.6 ui-monospace, Consolas, Menlo, monospace; color: var(--code-ink); }
+  .code div { padding: 0 14px 0 8px; white-space: pre; border-left: 4px solid transparent; transition: background .25s; }
+  .code div.on { background: var(--code-hl); border-left-color: var(--code-num); }
+  .code .n { color: #6b7896; display: inline-block; width: 2.2em; text-align: right; margin-right: 12px; user-select: none; }
+  .kw { color: var(--code-kw); } .str { color: var(--code-str); } .num { color: var(--code-num); } .com { color: var(--code-com); }
+  .caption { margin-top: 12px; min-height: 4.4em; padding: 10px 12px; border-radius: 10px;
+             background: var(--accent-soft); border-left: 4px solid var(--accent); }
+  .caption b { color: var(--accent); }
+  .console { margin-top: 12px; background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+             padding: 10px 14px; font: 14px/1.6 ui-monospace, Consolas, monospace; min-height: 7.4em; }
+  .console .label { color: #6b7896; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .console .err { color: #ff8f99; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: ui-monospace, Consolas, Menlo, monospace; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+           padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .4; cursor: default; }
+  .step { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .fade { animation: fade .45s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .flash { animation: flash .9s ease; }
+  @keyframes flash { 0%, 100% { opacity: 1; } 30% { opacity: .25; } }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px;
+                         margin-right: 6px; vertical-align: -1px; background: var(--c); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Stack and heap, line by line</h1>
+  <p class="sub">files/session-04/demos/StackHeap.java. Press Next (or the right arrow key) to run one line.</p>
+
+  <div class="grid">
+    <section class="card">
+      <div class="code" id="code"></div>
+      <div class="console" id="console"><div class="label">Console</div></div>
+    </section>
+
+    <section class="card">
+      <svg id="mem" viewBox="0 0 720 520" role="img" aria-label="Stack and heap diagram"></svg>
+      <div class="legend">
+        <span style="--c: var(--stack)">Stack: variables of main()</span>
+        <span style="--c: var(--heap)">Heap: objects made by new</span>
+        <span style="--c: var(--accent)">Arrow: a reference</span>
+      </div>
+      <div class="caption" id="caption"></div>
+      <div class="controls">
+        <button id="reset">Reset</button>
+        <button id="prev">Back</button>
+        <button id="next" class="primary">Next</button>
+        <button id="play">Play</button>
+        <span class="step" id="step"></span>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const SRC = [
+  'public static void main(String[] args) {',
+  '    int a = 5;',
+  '    int b = a;',
+  '    b = 99;',
+  '    System.out.println(a);',
+  '',
+  '    Box x = new Box(10);',
+  '    Box y = x;',
+  '    y.size = 99;',
+  '    System.out.println(x.size);',
+  '',
+  '    Box p = new Box(7);',
+  '    Box q = new Box(7);',
+  '    System.out.println(p == q);',
+  '    System.out.println(p.equals(q));',
+  '',
+  '    Box none = null;',
+  '    System.out.println(none.size);',
+  '}',
+];
+
+// Each step: the line that just ran, what memory looks like after it, and what to say.
+// vars: [name, type, value]; value is a number, "null" or "@id" for a reference.
+const STEPS = [
+  { line: 0, vars: [], objs: {}, out: [],
+    say: '<b>main() starts.</b> Java pushes a <b>stack frame</b> for main. It will hold main\'s local variables. The heap is empty.' },
+  { line: 1, vars: [['a','int',5]], objs: {}, out: [], hot: 'a',
+    say: '<b>int a = 5;</b> A primitive lives <b>directly in the stack</b>. The box named a holds the value 5 itself.' },
+  { line: 2, vars: [['a','int',5],['b','int',5]], objs: {}, out: [], hot: 'b',
+    say: '<b>int b = a;</b> The value is <b>copied</b>. b gets its own 5. a and b are two separate boxes.' },
+  { line: 3, vars: [['a','int',5],['b','int',99]], objs: {}, out: [], hot: 'b',
+    say: '<b>b = 99;</b> Only b changes. a still holds 5, because they never shared anything.' },
+  { line: 4, vars: [['a','int',5],['b','int',99]], objs: {}, out: ['5'],
+    say: 'Prints <b>5</b>. Primitives are copied by value.' },
+  { line: 6, vars: [['a','int',5],['b','int',99],['x','Box','@1']], objs: {1: 10}, out: ['5'], hot: 'x', newObj: 1,
+    say: '<b>new Box(10)</b> builds an object <b>on the heap</b>. x does not hold the object; it holds a <b>reference</b> (an arrow) to it.' },
+  { line: 7, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1']], objs: {1: 10}, out: ['5'], hot: 'y',
+    say: '<b>Box y = x;</b> Copies the <b>arrow</b>, not the object. Now two variables point at <b>the same</b> Box.' },
+  { line: 8, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1']], objs: {1: 99}, out: ['5'], hotObj: 1,
+    say: '<b>y.size = 99;</b> Follow y\'s arrow and change the object. There is only one object, so x sees it too.' },
+  { line: 9, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1']], objs: {1: 99}, out: ['5','99'],
+    say: 'Prints <b>99</b>. x and y are two names for one object.' },
+  { line: 11, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2']], objs: {1: 99, 2: 7}, out: ['5','99'], hot: 'p', newObj: 2,
+    say: '<b>new Box(7)</b>: a second object on the heap, and p points at it.' },
+  { line: 12, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2'],['q','Box','@3']], objs: {1: 99, 2: 7, 3: 7}, out: ['5','99'], hot: 'q', newObj: 3,
+    say: 'Another <b>new</b>, another object. Same content (7), but a <b>different</b> object at a different place.' },
+  { line: 13, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2'],['q','Box','@3']], objs: {1: 99, 2: 7, 3: 7}, out: ['5','99','false'], cmp: ['p','q'],
+    say: '<b>p == q</b> compares the <b>arrows</b>: do they point at the same object? No, so <b>false</b>.' },
+  { line: 14, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2'],['q','Box','@3']], objs: {1: 99, 2: 7, 3: 7}, out: ['5','99','false','false'], cmp: ['p','q'],
+    say: '<b>p.equals(q)</b> is also <b>false</b>: Box did not override equals, so it falls back to ==. Override equals to compare content.' },
+  { line: 16, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2'],['q','Box','@3'],['none','Box','null']], objs: {1: 99, 2: 7, 3: 7}, out: ['5','99','false','false'], hot: 'none',
+    say: '<b>Box none = null;</b> A reference with <b>no arrow</b>. It points at nothing.' },
+  { line: 17, vars: [['a','int',5],['b','int',99],['x','Box','@1'],['y','Box','@1'],['p','Box','@2'],['q','Box','@3'],['none','Box','null']], objs: {1: 99, 2: 7, 3: 7}, out: ['5','99','false','false','!NullPointerException'], crash: 'none',
+    say: '<b>none.size</b>: there is no arrow to follow, so Java throws a <b>NullPointerException</b>. Always ask: could this be null?' },
+];
+
+const OBJ_POS = { 1: [500, 60], 2: [450, 222], 3: [450, 380] };
+const ROW_Y0 = 72, ROW_H = 54;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+function highlight(line) {
+  const KW = new Set(['public', 'static', 'void', 'int', 'new', 'null', 'class']);
+  return line.replace(/(".*?")|(\b\d+\b)|([A-Za-z_]\w*)|([^"\w]+)/g, (m, str, num, word) => {
+    if (str) return `<span class="str">${esc(m)}</span>`;
+    if (num) return `<span class="num">${m}</span>`;
+    if (word) return KW.has(m) || /^[A-Z]/.test(m) ? `<span class="kw">${m}</span>` : m;
+    return esc(m);
+  });
+}
+document.getElementById('code').innerHTML =
+  SRC.map((l, i) => `<div data-i="${i}"><span class="n">${i + 3}</span>${highlight(l) || ' '}</div>`).join('');
+
+let cur = 0, timer = null;
+const svg = document.getElementById('mem');
+const NS = 'http://www.w3.org/2000/svg';
+
+function el(tag, attrs, parent = svg, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text !== undefined) e.textContent = text;
+  parent.appendChild(e);
+  return e;
+}
+
+function draw(prevIdx) {
+  const s = STEPS[cur], prev = STEPS[prevIdx] || { vars: [], objs: {} };
+  const C = { ink: css('--ink'), muted: css('--muted'), line: css('--line'), panel: css('--panel'),
+              stack: css('--stack'), stackSoft: css('--stack-soft'), heap: css('--heap'), heapSoft: css('--heap-soft'),
+              accent: css('--accent'), danger: css('--danger'), dangerSoft: css('--danger-soft') };
+  svg.innerHTML = '';
+  const defs = el('defs', {});
+  const mk = (id, color) => {
+    const m = el('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 8, markerHeight: 8, orient: 'auto-start-reverse' }, defs);
+    el('path', { d: 'M0,0 L10,5 L0,10 z', fill: color }, m);
+  };
+  mk('arr', C.accent); mk('arrHot', C.danger);
+
+  // Stack column
+  el('text', { x: 20, y: 28, fill: C.stack, 'font-size': 18, 'font-weight': 700 }, svg, 'STACK');
+  el('rect', { x: 14, y: 40, width: 300, height: 466, rx: 12, fill: 'none', stroke: C.line, 'stroke-dasharray': '6 5' });
+  el('rect', { x: 24, y: 50, width: 280, height: Math.max(40, 28 + s.vars.length * ROW_H + (s.crash ? 22 : 0)), rx: 10, fill: C.stackSoft, stroke: C.stack });
+  el('text', { x: 36, y: 66, fill: C.stack, 'font-size': 13 }, svg, 'frame: main()');
+
+  // Heap column
+  el('text', { x: 360, y: 28, fill: C.heap, 'font-size': 18, 'font-weight': 700 }, svg, 'HEAP');
+  el('rect', { x: 352, y: 40, width: 354, height: 466, rx: 12, fill: 'none', stroke: C.line, 'stroke-dasharray': '6 5' });
+
+  const arrows = el('g', {});
+  const prevNames = new Set(prev.vars.map(v => v[0]));
+  const rowY = {};
+
+  s.vars.forEach(([name, type, val], i) => {
+    const y = ROW_Y0 + i * ROW_H;
+    rowY[name] = y;
+    const g = el('g', {});
+    if (!prevNames.has(name) && cur > prevIdx) g.setAttribute('class', 'fade');
+    const crash = s.crash === name;
+    el('text', { x: 36, y: y + 31, fill: C.muted, 'font-size': 13 }, g, type);
+    el('text', { x: 82, y: y + 31, fill: C.ink, 'font-size': 18, 'font-weight': 700 }, g, name);
+    const box = el('rect', { x: 170, y: y + 8, width: 120, height: 38, rx: 7,
+      fill: crash ? C.dangerSoft : C.panel, stroke: crash ? C.danger : (s.hot === name ? C.accent : C.stack),
+      'stroke-width': s.hot === name || crash ? 3 : 1.5 }, g);
+    const changed = prev.vars.find(v => v[0] === name && v[2] !== val);
+    if (typeof val === 'number') {
+      const t = el('text', { x: 230, y: y + 33, fill: C.ink, 'font-size': 20, 'text-anchor': 'middle', 'font-weight': 700 }, g, String(val));
+      if (changed && cur > prevIdx) t.setAttribute('class', 'flash');
+    } else if (val === 'null') {
+      el('text', { x: 230, y: y + 33, fill: crash ? C.danger : C.muted, 'font-size': 18, 'text-anchor': 'middle' }, g, 'null');
+    } else {
+      el('circle', { cx: 278, cy: y + 27, r: 5, fill: C.accent }, g);
+      el('text', { x: 222, y: y + 33, fill: C.muted, 'font-size': 14, 'text-anchor': 'middle' }, g, 'ref');
+    }
+    if (crash) {
+      el('text', { x: 230, y: y + 64, fill: C.danger, 'font-size': 13, 'text-anchor': 'middle', 'font-weight': 700 }, g, 'nothing to follow!');
+    }
+  });
+
+  // Heap objects
+  for (const id in s.objs) {
+    const [ox, oy] = OBJ_POS[id];
+    const g = el('g', {});
+    if (!(id in prev.objs) && cur > prevIdx) g.setAttribute('class', 'fade');
+    const hot = s.hotObj == id || s.newObj == id;
+    el('rect', { x: ox, y: oy, width: 130, height: 92, rx: 10, fill: C.heapSoft, stroke: hot ? C.accent : C.heap, 'stroke-width': hot ? 3 : 1.5 }, g);
+    el('text', { x: ox + 12, y: oy + 24, fill: C.heap, 'font-size': 15, 'font-weight': 700 }, g, `Box #${id}`);
+    el('line', { x1: ox, y1: oy + 34, x2: ox + 130, y2: oy + 34, stroke: C.heap, 'stroke-opacity': .5 }, g);
+    el('text', { x: ox + 12, y: oy + 66, fill: C.muted, 'font-size': 15 }, g, 'size');
+    const v = el('text', { x: ox + 100, y: oy + 67, fill: C.ink, 'font-size': 22, 'font-weight': 700, 'text-anchor': 'middle' }, g, String(s.objs[id]));
+    if (prev.objs[id] !== undefined && prev.objs[id] !== s.objs[id] && cur > prevIdx) v.setAttribute('class', 'flash');
+  }
+
+  // Arrows from reference variables to their objects
+  s.vars.forEach(([name, , val]) => {
+    if (typeof val !== 'string' || !val.startsWith('@')) return;
+    const id = val.slice(1), [ox, oy] = OBJ_POS[id];
+    const sx = 283, sy = rowY[name] + 27;
+    const tx = ox - 2, ty = oy + 20 + (['y', 'q'].includes(name) ? 44 : 14);
+    const hot = s.hot === name || (s.cmp && s.cmp.includes(name));
+    const mid = (sx + tx) / 2 + 20;
+    const p = el('path', { d: `M${sx},${sy} C${mid},${sy} ${mid - 40},${ty} ${tx},${ty}`, fill: 'none',
+      stroke: hot && s.cmp ? C.danger : C.accent, 'stroke-width': hot ? 3.2 : 2,
+      'marker-end': hot && s.cmp ? 'url(#arrHot)' : 'url(#arr)' }, arrows);
+    if (s.hot === name && cur > prevIdx) {
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+      p.getBoundingClientRect();
+      p.style.transition = 'stroke-dashoffset .7s ease .15s';
+      p.style.strokeDashoffset = 0;
+    }
+  });
+
+  if (s.cmp) {
+    el('text', { x: 530, y: 496, fill: C.danger, 'font-size': 16, 'font-weight': 700, 'text-anchor': 'middle' }, svg,
+      'p and q point at different objects');
+  }
+}
+
+function render(prevIdx) {
+  const s = STEPS[cur];
+  document.querySelectorAll('#code div').forEach(d => d.classList.toggle('on', +d.dataset.i === s.line));
+  document.getElementById('caption').innerHTML = s.say;
+  document.getElementById('console').innerHTML = '<div class="label">Console</div>' +
+    s.out.map(o => o.startsWith('!')
+      ? `<div class="err">Exception in thread "main" java.lang.${o.slice(1)}</div>`
+      : `<div>${o}</div>`).join('');
+  document.getElementById('step').textContent = `Step ${cur + 1} of ${STEPS.length}`;
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === STEPS.length - 1;
+  draw(prevIdx);
+}
+
+function go(n) {
+  const prevIdx = cur;
+  cur = Math.max(0, Math.min(STEPS.length - 1, n));
+  render(prevIdx);
+  if (cur === STEPS.length - 1) stop();
+}
+function stop() { clearInterval(timer); timer = null; document.getElementById('play').textContent = 'Play'; }
+function play() {
+  if (timer) return stop();
+  if (cur === STEPS.length - 1) go(0);
+  document.getElementById('play').textContent = 'Pause';
+  timer = setInterval(() => go(cur + 1), 3200);
+}
+
+document.getElementById('next').onclick = () => { stop(); go(cur + 1); };
+document.getElementById('prev').onclick = () => { stop(); go(cur - 1); };
+document.getElementById('reset').onclick = () => { stop(); go(0); };
+document.getElementById('play').onclick = play;
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); stop(); go(cur + 1); }
+  if (e.key === 'ArrowLeft') { stop(); go(cur - 1); }
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => draw(cur));
+render(-1);
+</script>
+</body>
+</html>
