@@ -1,0 +1,30 @@
+### Library API lab (IntelliJ HTTP Client). Swagger UI: http://localhost:8080/swagger-ui.html
+
+GET http://localhost:8080/api/books
+
+###
+GET http://localhost:8080/api/books?author=orwell
+
+###
+GET http://localhost:8080/api/books/99
+
+### Valid
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{"title": "Refactoring", "author": "Martin Fowler", "isbn": "9780134757599", "year": 2018, "copies": 4}
+
+### Invalid: every rule broken (expect 400 with an errors map)
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{"title": "", "author": "", "isbn": "123", "year": 1200, "copies": -1}
+
+### Duplicate ISBN (expect 409)
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{"title": "Another 1984", "author": "George Orwell", "isbn": "9780451524935", "year": 1949, "copies": 1}
+
+###
+DELETE http://localhost:8080/api/books/1

@@ -1,0 +1,4 @@
+# Loaded on top of application.yml when the "prod" profile is active
+shop:
+  name: Flairs Shop
+  tax-rate: 0.15

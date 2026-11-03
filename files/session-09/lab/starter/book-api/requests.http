@@ -1,0 +1,23 @@
+### Lab 2 requests (IntelliJ HTTP Client)
+GET http://localhost:8080/api/books
+
+###
+GET http://localhost:8080/api/books?author=orwell
+
+###
+GET http://localhost:8080/api/books?sortBy=year
+
+###
+GET http://localhost:8080/api/books/count
+
+###
+GET http://localhost:8080/api/books/99
+
+###
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{"title": "Refactoring", "author": "Martin Fowler", "year": 1999}
+
+###
+DELETE http://localhost:8080/api/books/1
