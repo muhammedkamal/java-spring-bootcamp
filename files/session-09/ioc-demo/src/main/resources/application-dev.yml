@@ -1,0 +1,3 @@
+# Loaded on top of application.yml when the "dev" profile is active
+shop:
+  name: Flairs Shop (DEV)

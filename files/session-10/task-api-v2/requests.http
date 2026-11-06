@@ -1,0 +1,48 @@
+### IntelliJ HTTP Client. Swagger UI: http://localhost:8080/swagger-ui.html
+
+GET http://localhost:8080/api/tasks
+
+###
+GET http://localhost:8080/api/tasks?priority=HIGH&done=false
+
+### 404 as ProblemDetail
+GET http://localhost:8080/api/tasks/99
+
+### Create. Try sending "id" or "done" too: they are ignored (that is what the DTO is for)
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{"title": "Write docs", "description": "README and Swagger", "priority": "LOW", "dueDate": "2030-01-01"}
+
+### Validation: expect 400 with an errors map
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{"title": "", "dueDate": "2020-01-01"}
+
+### Duplicate title: expect 409
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{"title": "learn spring", "priority": "LOW"}
+
+### Malformed JSON: expect 400
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{bad
+
+### Replace
+PUT http://localhost:8080/api/tasks/1
+Content-Type: application/json
+
+{"title": "Learn Spring Boot", "priority": "HIGH", "done": true}
+
+###
+PATCH http://localhost:8080/api/tasks/2/complete
+
+###
+DELETE http://localhost:8080/api/tasks/3
+
+### Negative id: expect 400
+GET http://localhost:8080/api/tasks/-1

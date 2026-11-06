@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 // A tiny HTTP server and client in one file, so you can see methods, status codes and headers
 // without any framework. In Week 5 Spring Boot will write the server part for you.
+// Run "java demos/HttpBasics.java serve" to keep the server up for the Postman collection.
 public class HttpBasics {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8089), 0);
@@ -20,7 +21,10 @@ public class HttpBasics {
             String json;
             switch (method) {
                 case "GET" -> { status = 200; json = "[{\"id\":1,\"title\":\"Dune\"},{\"id\":2,\"title\":\"Emma\"}]"; }
-                case "POST" -> { status = 201; json = "{\"id\":3,\"created\":" + body + "}"; }
+                case "POST" -> {
+                    if (body.contains("\"title\"")) { status = 201; json = "{\"id\":3,\"created\":" + body + "}"; }
+                    else { status = 400; json = "{\"error\":\"title is required\"}"; }
+                }
                 case "DELETE" -> { status = 204; json = ""; }
                 default -> { status = 405; json = "{\"error\":\"Method not allowed\"}"; }
             }
@@ -28,6 +32,11 @@ public class HttpBasics {
         });
         server.createContext("/secret", exchange -> send(exchange, 401, "{\"error\":\"Login required\"}"));
         server.start();
+
+        if (args.length > 0 && args[0].equals("serve")) {
+            System.out.println("Serving on http://localhost:8089 (Ctrl+C to stop)");
+            return;
+        }
 
         HttpClient client = HttpClient.newHttpClient();
         show(client, HttpRequest.newBuilder(URI.create("http://localhost:8089/books")).GET().build());

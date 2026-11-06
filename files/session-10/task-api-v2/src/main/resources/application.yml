@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: task-api-v2
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html      # then open http://localhost:8080/swagger-ui.html
+  api-docs:
+    path: /v3/api-docs          # raw OpenAPI JSON
+
+logging:
+  level:
+    com.flairs: DEBUG
