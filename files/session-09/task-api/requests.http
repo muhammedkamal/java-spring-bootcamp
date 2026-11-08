@@ -1,0 +1,40 @@
+### IntelliJ HTTP Client file. Open it in IntelliJ and click the green arrow next to each request.
+
+### Hello with a default and with a query parameter
+GET http://localhost:8080/api/hello
+
+###
+GET http://localhost:8080/api/hello?name=Sara
+
+### All tasks
+GET http://localhost:8080/api/tasks
+
+### Filters
+GET http://localhost:8080/api/tasks?done=true
+
+###
+GET http://localhost:8080/api/tasks?search=spring
+
+### One task, then one that does not exist (404)
+GET http://localhost:8080/api/tasks/1
+
+###
+GET http://localhost:8080/api/tasks/99
+
+### Create (201 + Location header)
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{"title": "Write tests"}
+
+### Replace
+PUT http://localhost:8080/api/tasks/1
+Content-Type: application/json
+
+{"title": "Learn Spring Boot", "done": true}
+
+### Complete
+PATCH http://localhost:8080/api/tasks/2/complete
+
+### Delete (204)
+DELETE http://localhost:8080/api/tasks/3

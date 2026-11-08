@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ioc-demo
+  profiles:
+    active: dev            # override: --spring.profiles.active=prod
+
+shop:
+  name: Flairs Shop
+  tax-rate: 0.14
+  currency: EGP
