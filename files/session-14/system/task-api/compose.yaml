@@ -1,0 +1,30 @@
+# Everything the Task API needs on your laptop. Spring Boot starts this file for you (spring-boot-docker-compose)
+# and connects to each service. By hand: docker compose up -d   Wipe the data: docker compose down -v
+# To run the WHOLE system (this API in Docker too, plus notification-service and the gateway): ../compose.yaml
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: tasks
+    ports:
+      - "5432:5432"
+    volumes:
+      - tasks-data:/var/lib/postgresql/data
+
+  # NEW in Session 14: the cache
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+
+  # NEW in Session 14: the message broker. Web console: http://localhost:15672 (guest / guest)
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  tasks-data:

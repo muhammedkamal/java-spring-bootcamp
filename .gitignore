@@ -14,6 +14,8 @@ files/session-01/{*
 .idea/
 *.iml
 out/
+target/
+.vscode/
 *.class
 
 # instructor-only quizzes and keys
@@ -21,3 +23,6 @@ quizzes/
 
 # instructor-only Arabic transcripts
 transcripts/
+
+# instructor-only lab solutions (Session 11 on; earlier ones are already tracked)
+files/*/lab/solutions/

@@ -1,0 +1,43 @@
+# Session 14: the whole system through the gateway (docker compose up -d --build first).
+# Everything goes to port 8000. Run top to bottom in IntelliJ or VS Code REST Client.
+
+### 1. The gateway is alive
+GET http://localhost:8000/actuator/health
+
+### 2. The Task API answers through the gateway: look at the X-Served-By response header
+GET http://localhost:8000/actuator/gateway/routes
+
+### 3. Log in as Sara (through the gateway, to the Task API)
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{"email": "sara@flairs.dev", "password": "secret123"}
+
+> {% client.global.set("sara", response.body.accessToken); %}
+
+### 4. Stats: the first call runs SQL, the second comes from Redis (watch the task-api log: no SQL the 2nd time)
+GET http://localhost:8000/api/tasks/stats
+Authorization: Bearer {{sara}}
+
+### 5. Create a task: saved in PostgreSQL, stats evicted, task.created sent to RabbitMQ
+POST http://localhost:8000/api/tasks
+Authorization: Bearer {{sara}}
+Content-Type: application/json
+
+{"title": "Ship it with Docker", "priority": "HIGH", "projectId": 1}
+
+> {% client.global.set("taskId", response.body.id); %}
+
+### 6. Complete it: task.completed sent
+PATCH http://localhost:8000/api/tasks/{{taskId}}/complete
+Authorization: Bearer {{sara}}
+
+### 7. The notification service heard both (same token, a different service)
+GET http://localhost:8000/api/notifications
+Authorization: Bearer {{sara}}
+
+### 8. No token: 401 from the notification service itself (the gateway does not check tokens)
+GET http://localhost:8000/api/notifications
+
+### 9. Not routed: 404 from the gateway
+GET http://localhost:8000/internal/anything

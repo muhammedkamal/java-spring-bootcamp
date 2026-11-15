@@ -1,0 +1,116 @@
+# Session 12 demo requests. Run them top to bottom in IntelliJ (or VS Code REST Client).
+# The login requests save the tokens into variables ({{sara}}, {{refresh}}, {{admin}}).
+# Demo accounts (V6 migration): admin@flairs.dev, sara@flairs.dev, omar@flairs.dev, password secret123
+
+### 1. No token: 401 with WWW-Authenticate: Bearer
+GET http://localhost:8080/api/tasks
+
+### 2. Wrong password: 401, and the same message as an unknown email
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{"email": "sara@flairs.dev", "password": "wrong-password"}
+
+### 3. Log in as Sara (USER)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{"email": "sara@flairs.dev", "password": "secret123"}
+
+> {%
+    client.global.set("sara", response.body.accessToken);
+    client.global.set("refresh", response.body.refreshToken);
+%}
+
+### 4. Who am I?  Paste the accessToken into https://jwt.io to read its claims (never paste a real production token)
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer {{sara}}
+
+### 5. Sara sees only her projects
+GET http://localhost:8080/api/projects
+Authorization: Bearer {{sara}}
+
+### 6. Omar's project: 404, not 403 (do not confirm that it exists)
+GET http://localhost:8080/api/projects/3
+Authorization: Bearer {{sara}}
+
+### 7. Admin area as a USER: 403
+GET http://localhost:8080/api/admin/users
+Authorization: Bearer {{sara}}
+
+### 8. Create a project: the owner comes from the token, not from the body
+POST http://localhost:8080/api/projects
+Authorization: Bearer {{sara}}
+Content-Type: application/json
+
+{"name": "Security", "description": "Session 12"}
+
+### 9. Sara's tasks only
+GET http://localhost:8080/api/tasks?page=0&size=5
+Authorization: Bearer {{sara}}
+
+### 10. Refresh: returns a NEW pair, the old refresh token is now revoked
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken": "{{refresh}}"}
+
+> {% client.global.set("refresh2", response.body.refreshToken); %}
+
+### 11. Use the OLD refresh token again: 401, and ALL of Sara's refresh tokens are revoked (reuse detection)
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken": "{{refresh}}"}
+
+### 12. So the new one fails too: 401. Sara must log in again.
+POST http://localhost:8080/api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken": "{{refresh2}}"}
+
+### 13. Log in as the admin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{"email": "admin@flairs.dev", "password": "secret123"}
+
+> {% client.global.set("admin", response.body.accessToken); %}
+
+### 14. ADMIN can list users (no password hashes in the response)
+GET http://localhost:8080/api/admin/users
+Authorization: Bearer {{admin}}
+
+### 15. ADMIN sees every project, including Omar's
+GET http://localhost:8080/api/projects
+Authorization: Bearer {{admin}}
+
+### 16. Register a new USER (email is stored lower case)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{"email": "Nour@Flairs.dev", "password": "longpass1", "displayName": "Nour"}
+
+### 17. Password too short: 400 with the errors map
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{"email": "x@flairs.dev", "password": "short", "displayName": "X"}
+
+### 18. Log out: revokes the refresh token (log in as Sara again first, request 3)
+POST http://localhost:8080/api/auth/logout
+Authorization: Bearer {{sara}}
+Content-Type: application/json
+
+{"refreshToken": "{{refresh}}"}
+
+### 19. CORS pre-flight from the allowed front end: 200 with Access-Control-Allow-Origin
+OPTIONS http://localhost:8080/api/tasks
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: authorization, content-type
+
+### 20. CORS pre-flight from another site: 403
+OPTIONS http://localhost:8080/api/tasks
+Origin: http://evil.example
+Access-Control-Request-Method: GET

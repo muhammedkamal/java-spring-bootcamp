@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: library-api
+  datasource:
+    url: jdbc:postgresql://localhost:5433/library
+    username: library
+    password: library
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_batch_fetch_size: 20
+  docker:
+    compose:
+      lifecycle-management: start-only
+  # NEW in Session 14: Redis on 6380 and RabbitMQ on 5673, so they can run next to the Task API's
+  data:
+    redis:
+      port: 6380
+  rabbitmq:
+    port: 5673
+  cache:
+    cache-names: books
+    redis:
+      time-to-live: 10m
+
+library:
+  max-active-loans: 3          # a member may borrow at most 3 books at a time
+  loan-days: 14
+
+# NEW in Session 12. The default secret is for your laptop only: set JWT_SECRET everywhere else.
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-library-secret-0123456789abcdef}
+    issuer: library-api
+    access-token-ttl: 30m
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.flairs: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: INFO     # set to DEBUG to see why a request got 401 or 403
+
+# TODO 1: Actuator. Expose health and info, turn on the health probes (liveness, readiness),
+# show details only to LIBRARIAN, and add an info.app.description. See the Task API in ../../system.
+
+---
+# The profile the Docker image runs with (see compose.app.yaml)
+spring:
+  config:
+    activate:
+      on-profile: prod
+  docker:
+    compose:
+      enabled: false
+app:
+  jwt:
+    secret: ${JWT_SECRET}            # no default in prod: the app does not start without it
+logging:
+  level:
+    com.flairs: INFO
+    org.hibernate.SQL: WARN

@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: task-api
+  datasource:                       # used when you start PostgreSQL yourself; Docker Compose support overrides it
+    url: jdbc:postgresql://localhost:5432/tasks
+    username: tasks
+    password: tasks
+  jpa:
+    open-in-view: false             # no lazy loading in controllers: load what you need in the service
+    hibernate:
+      ddl-auto: validate            # Flyway creates the tables; Hibernate only checks they match the entities
+    properties:
+      hibernate:
+        default_batch_fetch_size: 20   # load lazy collections (tags) 20 at a time instead of one query each
+  docker:
+    compose:
+      lifecycle-management: start-only   # start compose.yaml with the app, leave it running after
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.flairs: DEBUG
+    org.hibernate.SQL: DEBUG        # print every SQL statement: watch it to spot the N+1 problem
+#   org.hibernate.orm.jdbc.bind: TRACE   # uncomment to also see the parameter values
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  docker:
+    compose:
+      enabled: false
+logging:
+  level:
+    com.flairs: INFO
+    org.hibernate.SQL: WARN

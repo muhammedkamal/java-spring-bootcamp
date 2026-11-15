@@ -1,0 +1,51 @@
+server:
+  port: 8081                        # the Task API has 8080, the gateway 8000
+
+spring:
+  application:
+    name: notification-service
+  rabbitmq:                         # the RabbitMQ that ../task-api/compose.yaml starts; in Docker: SPRING_RABBITMQ_HOST
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true             # a listener that throws is tried 3 times (1s, 2s) before the message is rejected
+          max-attempts: 3
+          initial-interval: 1s
+          multiplier: 2
+        default-requeue-rejected: false   # after the retries: dead letter queue, not back to the queue forever
+
+app:
+  jwt:
+    # MUST be the same secret and issuer as the Task API, or every token is 401 here
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+    issuer: task-api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    com.flairs: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+logging:
+  level:
+    com.flairs: INFO

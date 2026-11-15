@@ -1,0 +1,50 @@
+# CI for the course repository: every project that has tests is built with "mvn verify".
+# Students: copy files/session-13/task-api-v5/.github/workflows/ci.yml (one project) or
+# files/session-14/system/.github/workflows/ci.yml (several services and Docker images) into your own repo.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths: ['files/**', '.github/workflows/**']
+  pull_request:
+    paths: ['files/**', '.github/workflows/**']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false               # one broken project should not hide the others
+      matrix:
+        project:
+          - files/session-13/task-api-v5
+          - files/session-14/system/task-api
+          - files/session-14/system/notification-service
+          - files/session-14/system/gateway
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: ${{ matrix.project }}/pom.xml
+
+      - name: mvn verify
+        run: mvn -B verify
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ strategy.job-index }}
+          path: |
+            ${{ matrix.project }}/target/surefire-reports/
+            ${{ matrix.project }}/target/failsafe-reports/
+            ${{ matrix.project }}/target/site/jacoco/

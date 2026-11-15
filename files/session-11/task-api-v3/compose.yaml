@@ -1,0 +1,26 @@
+# PostgreSQL for the Task API. Spring Boot starts this file for you (spring-boot-docker-compose).
+# By hand: docker compose up -d   Stop: docker compose down   Wipe the data: docker compose down -v
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: tasks
+    ports:
+      - "5432:5432"
+    volumes:
+      - tasks-data:/var/lib/postgresql/data
+
+  # Browse the tables: http://localhost:8081  (System PostgreSQL, Server postgres, user tasks, password tasks)
+  adminer:
+    image: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "8081:8080"
+    labels:
+      org.springframework.boot.ignore: true   # Spring Boot does not need to connect to this one
+
+volumes:
+  tasks-data:

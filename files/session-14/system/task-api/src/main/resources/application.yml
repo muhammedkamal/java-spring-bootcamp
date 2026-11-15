@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: task-api
+  datasource:                       # used when you start PostgreSQL yourself; Docker Compose support overrides it
+    url: jdbc:postgresql://localhost:5432/tasks
+    username: tasks
+    password: tasks
+  jpa:
+    open-in-view: false             # no lazy loading in controllers: load what you need in the service
+    hibernate:
+      ddl-auto: validate            # Flyway creates the tables; Hibernate only checks they match the entities
+    properties:
+      hibernate:
+        default_batch_fetch_size: 20   # load lazy collections (tags) 20 at a time instead of one query each
+  docker:
+    compose:
+      lifecycle-management: start-only   # start compose.yaml with the app, leave it running after
+  # NEW in Session 14. Redis and RabbitMQ run on localhost by default; compose.yaml starts both.
+  # In Docker the hosts come from SPRING_DATA_REDIS_HOST and SPRING_RABBITMQ_HOST (see ../compose.yaml).
+  cache:
+    cache-names: task-stats
+    redis:
+      time-to-live: 10m             # even if an eviction is missed, a stale answer lives at most 10 minutes
+
+# NEW in Session 12
+app:
+  jwt:
+    # Read from the JWT_SECRET environment variable. The default is for your laptop only (32+ bytes).
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+    issuer: task-api
+    access-token-ttl: 15m
+    refresh-token-ttl: 7d
+  cors:
+    allowed-origins: http://localhost:5173, http://localhost:3000
+
+# NEW in Session 14: Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true               # /actuator/health/liveness and /actuator/health/readiness
+      show-details: when-authorized # the admin sees db, redis and rabbit one by one; others only UP or DOWN
+      roles: ADMIN
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+
+info:
+  app:
+    description: Task API of the Flairs internship
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.flairs: DEBUG
+    org.hibernate.SQL: DEBUG        # print every SQL statement: watch it to spot the N+1 problem
+    org.springframework.security: INFO   # set to DEBUG to see which filter accepts or rejects a request
+#   org.hibernate.orm.jdbc.bind: TRACE   # uncomment to also see the parameter values
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  docker:
+    compose:
+      enabled: false
+app:
+  jwt:
+    secret: ${JWT_SECRET}            # no default in prod: the app does not start without it
+logging:
+  level:
+    com.flairs: INFO
+    org.hibernate.SQL: WARN

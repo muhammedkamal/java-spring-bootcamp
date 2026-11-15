@@ -1,0 +1,50 @@
+### Page 0 of the open tasks, 3 per page, soonest due first
+GET http://localhost:8080/api/tasks?done=false&page=0&size=3&sort=dueDate,asc
+
+### Filter by priority
+GET http://localhost:8080/api/tasks?priority=HIGH
+
+### One task with its project and tags
+GET http://localhost:8080/api/tasks/2
+
+### Overdue tasks (derived query)
+GET http://localhost:8080/api/tasks/overdue
+
+### Count per priority (JPQL projection)
+GET http://localhost:8080/api/tasks/stats
+
+### Projects
+GET http://localhost:8080/api/projects
+
+### Tasks of project 1 (JOIN FETCH)
+GET http://localhost:8080/api/projects/1/tasks
+
+### Create a project
+POST http://localhost:8080/api/projects
+Content-Type: application/json
+
+{ "name": "Capstone", "description": "Team project" }
+
+### Create a task with tags
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{ "title": "Write the ERD", "priority": "HIGH", "projectId": 1, "estimateHours": 3, "tags": ["Design", "urgent"] }
+
+### Unknown project: 404
+POST http://localhost:8080/api/tasks
+Content-Type: application/json
+
+{ "title": "Lost task", "priority": "LOW", "projectId": 999 }
+
+### Update (no save() call in the service: dirty checking)
+PUT http://localhost:8080/api/tasks/2
+Content-Type: application/json
+
+{ "title": "Move the API to PostgreSQL", "priority": "HIGH", "done": true, "estimateHours": 4 }
+
+### Complete
+PATCH http://localhost:8080/api/tasks/4/complete
+
+### Delete
+DELETE http://localhost:8080/api/tasks/5

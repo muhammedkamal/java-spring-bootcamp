@@ -1,0 +1,90 @@
+# Session 14: the WHOLE system on one machine.
+#
+#   browser / Postman --> gateway :8000 --+--> task-api :8080 ----> postgres, redis
+#                                         |         |
+#                                         |         +--(task.created / task.completed)--> rabbitmq
+#                                         |                                                  |
+#                                         +--> notification-service :8081 <------------------+
+#
+# First time:   cp .env.example .env      (then put a long random JWT_SECRET in .env)
+# Start:        docker compose up -d --build
+# Watch:        docker compose ps         (wait until every service is "healthy")
+#               docker compose logs -f task-api notification-service
+# Stop:         docker compose down       (add -v to also delete the database)
+#
+# Only the gateway publishes a port (plus the RabbitMQ UI, on 127.0.0.1:15672 only). The services talk to each other by NAME (http://task-api:8080)
+# on the network Compose creates; from your laptop you cannot reach them directly, and that is the point.
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: tasks
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tasks}
+    volumes:
+      - tasks-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasks -d tasks"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "127.0.0.1:15672:15672"     # the web console, for the demo only (guest / guest), and only from this laptop
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 10
+
+  task-api:
+    build: ./task-api
+    image: task-api:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tasks
+      SPRING_DATASOURCE_USERNAME: tasks
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-tasks}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (copy .env.example)}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+
+  notification-service:
+    build: ./notification-service
+    image: notification-service:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_RABBITMQ_HOST: rabbitmq
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (copy .env.example)}   # the SAME secret: it checks the same tokens
+    depends_on:
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+
+  gateway:
+    build: ./gateway
+    image: gateway:1.0.0
+    environment:
+      TASK_API_URL: http://task-api:8080
+      NOTIFICATIONS_URL: http://notification-service:8081
+    ports:
+      - "8000:8000"
+    depends_on:
+      task-api: { condition: service_healthy }
+      notification-service: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  tasks-data:

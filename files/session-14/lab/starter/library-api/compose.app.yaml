@@ -1,0 +1,13 @@
+# TODO 6: add the Library API container on top of compose.yaml.
+#   export JWT_SECRET=$(openssl rand -base64 48)
+#   docker compose -f compose.yaml -f compose.app.yaml up -d --build --wait
+#   curl http://localhost:8090/actuator/health
+#
+# One service "library-api":
+#   - build from this folder, image library-api:1.0.0
+#   - profile prod, and the addresses of postgres, redis and rabbitmq INSIDE Docker
+#     (service name and container port: postgres:5432, not localhost:5433)
+#   - JWT_SECRET from your shell, and fail if it is missing: ${JWT_SECRET:?...}
+#   - host port 8090 -> container port 8080
+#   - start only when the three others are healthy (depends_on ... condition: service_healthy)
+services: {}

@@ -1,0 +1,40 @@
+# Everything the Library API needs on your laptop. Host ports differ from the Task API's
+# (5432, 6379, 5672), so both can run at the same time:
+#   PostgreSQL 5433   Redis 6380   RabbitMQ 5673 (management UI http://localhost:15673, guest/guest)
+# "mvn spring-boot:run" starts this file for you. To also run the app itself in Docker:
+#   docker compose -f compose.yaml -f compose.app.yaml up -d --build --wait
+name: library-api-s14
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library
+    ports:
+      - "5433:5432"
+    volumes:
+      - library-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U library -d library"]
+      interval: 5s
+      retries: 10
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 10
+volumes:
+  library-data:
