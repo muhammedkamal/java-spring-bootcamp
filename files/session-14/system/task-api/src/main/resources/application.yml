@@ -55,6 +55,11 @@ info:
   app:
     description: Task API of the Flairs internship
 
+server:
+  # Behind the gateway, read X-Forwarded-* to build links (Swagger's server URL, Location headers)
+  # with the public address. Tomcat trusts them only from private addresses, like the gateway's.
+  forward-headers-strategy: native
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
