@@ -50,7 +50,7 @@ class BookControllerTest {
                 .authorities(new SimpleGrantedAuthority("ROLE_LIBRARIAN"));
     }
 
-    // TODO 1
+    // Session 13, TODO 1 (done)
     @Test
     void aMemberCanReadABook() throws Exception {
         when(service.findById(1L)).thenReturn(new BookResponse(1L, "1984", "9780451524935", 1949, 3, 1L, "George Orwell"));
@@ -61,7 +61,7 @@ class BookControllerTest {
                 .andExpect(jsonPath("$.authorName").value("George Orwell"));
     }
 
-    // TODO 2
+    // Session 13, TODO 2 (done)
     @Test
     void withoutATokenTheCatalogueIs401() throws Exception {
         mvc.perform(get("/api/books"))
@@ -69,7 +69,7 @@ class BookControllerTest {
                 .andExpect(header().string("WWW-Authenticate", "Bearer"));
     }
 
-    // TODO 3
+    // Session 13, TODO 3 (done)
     @Test
     void aMemberCannotAddABook() throws Exception {
         mvc.perform(post("/api/books").with(member()).contentType(MediaType.APPLICATION_JSON).content(VALID_BOOK))
@@ -77,7 +77,7 @@ class BookControllerTest {
         verify(service, never()).create(any());
     }
 
-    // TODO 4
+    // Session 13, TODO 4 (done)
     @Test
     void aLibrarianAddsABook() throws Exception {
         when(service.create(any())).thenReturn(new BookResponse(7L, "Domain-Driven Design", "9780321125217", 2003, 2, 3L, "Martin Fowler"));
@@ -87,7 +87,7 @@ class BookControllerTest {
                 .andExpect(header().string("Location", "/api/books/7"));
     }
 
-    // TODO 5
+    // Session 13, TODO 5 (done)
     @Test
     void aBadIsbnIs400() throws Exception {
         mvc.perform(post("/api/books").with(librarian()).contentType(MediaType.APPLICATION_JSON)

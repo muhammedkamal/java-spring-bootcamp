@@ -27,7 +27,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, gateway   # /actuator/gateway/routes lists the routes it loaded
+        include: health, info            # Gateway MVC has no /actuator/gateway endpoint (only the WebFlux gateway has one)
   endpoint:
     health:
       probes:

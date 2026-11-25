@@ -5,7 +5,7 @@
 GET http://localhost:8000/actuator/health
 
 ### 2. The Task API answers through the gateway: look at the X-Served-By response header
-GET http://localhost:8000/actuator/gateway/routes
+GET http://localhost:8000/v3/api-docs
 
 ### 3. Log in as Sara (through the gateway, to the Task API)
 POST http://localhost:8000/api/auth/login

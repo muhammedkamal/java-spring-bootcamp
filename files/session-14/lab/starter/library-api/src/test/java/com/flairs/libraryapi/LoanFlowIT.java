@@ -24,7 +24,7 @@ class LoanFlowIT {
 
     @Autowired MockMvc mvc;
 
-    // TODO 8
+    // Session 13, TODO 8 (done)
     @Test
     void aMemberBorrowsAndReturnsABook() throws Exception {
         String sara = login("sara@example.com");
@@ -44,7 +44,7 @@ class LoanFlowIT {
                 .andExpect(status().isConflict());
     }
 
-    // TODO 9
+    // Session 13, TODO 9 (done)
     @Test
     void theLastCopyIsAlreadyOut() throws Exception {
         // "Animal Farm" has 1 copy and Sara has it (seed data)

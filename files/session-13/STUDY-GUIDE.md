@@ -117,7 +117,8 @@ A **workflow** (a YAML file in `.github/workflows/`) runs on **events** (`push`,
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `Could not find a valid Docker environment` | Docker is not running, or Testcontainers cannot find the Colima socket | Start Docker. With Colima, export `DOCKER_HOST` and `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE` (see the environment guide) |
+| `Could not find a valid Docker environment` | Docker is not running, or Testcontainers cannot find the Colima socket | Start Docker (`docker ps` must work). With Colima, add `docker.host` to `~/.testcontainers.properties`, see [the setup guide, section 5](../../environment/SETUP-WEEKS-6-8.md#testcontainers) |
+| `Could not start container` for `testcontainers/ryuk` | Colima: Ryuk cannot mount the socket | `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` in `~/.zshrc` **and** in IntelliJ's JUnit template, see [section 5](../../environment/SETUP-WEEKS-6-8.md#testcontainers) |
 | `@WebMvcTest` fails with `No qualifying bean of type ...Properties` | Slices do not run `@ConfigurationPropertiesScan` | Add `@EnableConfigurationProperties(TheProperties.class)` to the test |
 | `@WebMvcTest` fails with `No qualifying bean of type JwtDecoder` | `JwtConfig` is not part of the slice | Add `@MockitoBean JwtDecoder jwtDecoder` |
 | Admin test gets 403 with `roles: [ADMIN]` | `jwt()` ignores your roles converter | Add `.authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))` |

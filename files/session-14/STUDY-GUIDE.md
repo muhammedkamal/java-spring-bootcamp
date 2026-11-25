@@ -62,7 +62,7 @@ Use this guide in the first week of your final project. It takes about 2 hours a
 
 1. `cd system/task-api && docker build -t task-api:dev .` Change one line in a controller and build again. Which steps say `CACHED`? How long did the second build take?
 2. `docker history task-api:dev`. Find the four layer copies and their sizes.
-3. Run the whole system and call `GET http://localhost:8000/actuator/gateway/routes`. Then call `/api/tasks` and look at the `X-Served-By` header.
+3. Run the whole system. Call `GET http://localhost:8000/api/tasks` and then `/api/notifications` with Sara's token, and compare the `X-Served-By` header. Which route in `gateway/src/main/resources/application.yml` matched each one? What happens if you swap the two routes?
 4. Log in as admin and call `/actuator/health` through the gateway with and without the token. What changes?
 
 ## Day 4: Compose, CI images and a server (about 2 hours)

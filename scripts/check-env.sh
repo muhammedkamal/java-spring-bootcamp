@@ -33,8 +33,9 @@ soft  disk       'f=$(df -Pk . | awk "NR==2 {print \$4}") && [ "$f" -ge 15000000
 for img in postgres:17 postgres:17-alpine redis:8-alpine rabbitmq:4-management-alpine eclipse-temurin:25-jre-alpine maven:3.9-eclipse-temurin-25; do
   soft image "docker image inspect $img >/dev/null 2>&1 && echo $img || { echo '$img missing: docker pull $img'; false; }"
 done
-if [ -S "$HOME/.colima/default/docker.sock" ]; then   # Colima: Testcontainers needs three variables
-  soft colima-tc '[ "$TESTCONTAINERS_RYUK_DISABLED" = true ] && [ -n "$DOCKER_HOST" ] && [ -n "$TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE" ] && echo "Testcontainers variables set" || { echo "export the 3 variables in environment/SETUP-WEEKS-6-8.md#testcontainers"; false; }'
+if [ -S "$HOME/.colima/default/docker.sock" ]; then   # Colima: Testcontainers needs two settings
+  soft colima-tc-host 'grep -q "^docker.host=unix://.*colima" "$HOME/.testcontainers.properties" 2>/dev/null && echo "docker.host set in ~/.testcontainers.properties" || { echo "add docker.host to ~/.testcontainers.properties: environment/SETUP-WEEKS-6-8.md#testcontainers"; false; }'
+  soft colima-tc-ryuk '[ "$TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE" = /var/run/docker.sock ] && echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE set (also add it to the IntelliJ JUnit template)" || { echo "export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock in ~/.zshrc: environment/SETUP-WEEKS-6-8.md#testcontainers"; false; }'
 fi
 
 echo "$pass passed, $warn warnings, $fail failed"; [ "$fail" -eq 0 ]

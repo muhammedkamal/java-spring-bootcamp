@@ -57,7 +57,7 @@ You need a Docker **engine** and the `docker compose` plugin. Pick one:
 
 | OS | Recommended | Notes |
 | --- | --- | --- |
-| macOS | **Colima** (free, no licence questions) or Docker Desktop | Colima needs the extra Testcontainers settings in section 5 |
+| macOS | **Colima** (free, no licence questions) or Docker Desktop | Colima needs two extra Testcontainers settings, see [section 5](#testcontainers) |
 | Windows | Docker Desktop with the WSL 2 backend | Put the course repo **inside WSL** (`\\wsl$\Ubuntu\home\...`), not on `C:`. Builds are 5 to 10 times faster. |
 | Linux | Docker Engine from https://docs.docker.com/engine/install/ | Add yourself to the `docker` group: `sudo usermod -aG docker $USER`, then log out and in |
 
@@ -121,35 +121,91 @@ bash scripts/check-env.sh
 Every line must say `ok`. The script checks Java 25, Maven, Git, the Docker daemon, Docker Compose, the course images, and free disk space, and it runs one Session 1 program.
 
 <a id="testcontainers"></a>
-## 5. Testcontainers
+## 5. Testcontainers: running the tests that need a database
 
-From Session 13 the tests start their own PostgreSQL (and in Session 14 Redis and RabbitMQ) in Docker. Testcontainers needs to find the Docker socket.
+From Session 13, some tests start their own PostgreSQL in Docker. In Session 14 they also start Redis and RabbitMQ. Examples are `TaskRepositoryTest` (`@DataJpaTest`) and every `*IT` test. You do not start the database yourself, and `docker compose up` is not needed for the tests. Testcontainers starts a fresh `postgres:17-alpine` on a random port, runs the tests, and removes it.
 
-**Docker Desktop and Linux**: nothing to do.
+The only thing it needs is a Docker engine it can find.
 
-**Colima**: Testcontainers looks for `/var/run/docker.sock`, and Colima's socket is somewhere else. Add these to `~/.zshrc`, then open a new terminal:
+### How Testcontainers finds Docker (why it fails on some laptops)
+
+The `docker` command uses your **Docker context** (`docker context ls`), so `docker ps` works. Testcontainers does **not** read Docker contexts. It looks at:
+
+1. `DOCKER_HOST`, or `docker.host` in `~/.testcontainers.properties`
+2. `/var/run/docker.sock`
+3. `~/.docker/run/docker.sock` (Docker Desktop)
+
+It also starts a small helper container called **Ryuk**. Ryuk deletes the test containers when the run ends, even after a crash or Ctrl+C. Ryuk needs the Docker socket mounted inside it, so Testcontainers passes it the socket path it found.
+
+| Docker you use | What happens | Setup needed |
+| --- | --- | --- |
+| Docker Desktop (macOS, Windows) | Socket is at a standard path | None |
+| Linux Docker Engine | `/var/run/docker.sock` | None (you must be in the `docker` group) |
+| OrbStack | Creates `/var/run/docker.sock` | None |
+| **Colima** | Socket is at `~/.colima/default/docker.sock`, nothing at the standard paths | **Two settings, below** |
+
+On Colima there are two errors, one after the other:
+
+- `Could not find a valid Docker environment`: Testcontainers did not find the socket.
+- `Could not start container` for image `testcontainers/ryuk`: it found the socket, but passed the **Mac** path to Ryuk. That path does not exist inside the Colima VM, where containers run. Inside the VM the socket is `/var/run/docker.sock`.
+
+### Colima setup (once per laptop)
+
+**1. Tell Testcontainers where Docker is.** Create `~/.testcontainers.properties` with one line:
 
 ```bash
-export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
-export TESTCONTAINERS_RYUK_DISABLED=true
+echo "docker.host=unix://$HOME/.colima/default/docker.sock" > ~/.testcontainers.properties
+cat ~/.testcontainers.properties   # docker.host=unix:///Users/<you>/.colima/default/docker.sock
 ```
 
-- `DOCKER_HOST` tells Testcontainers (and the `docker` CLI) where the engine is.
-- `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE` is the path **inside** the Colima VM, for containers that need the socket mounted.
-- `TESTCONTAINERS_RYUK_DISABLED=true` turns off Ryuk, the clean-up container, which often cannot start on Colima. Without Ryuk, containers from a test run that was killed (for example with Ctrl+C) stay behind. Remove them now and then with:
+This file is read by every Java program, so it works in the terminal **and** in IntelliJ.
 
-  ```bash
-  docker ps -aq --filter label=org.testcontainers=true | xargs docker rm -f
-  ```
+**2. Tell Ryuk the socket path inside the VM.** This one only works as an environment variable, not in the properties file. Add it to `~/.zshrc`, then open a new terminal:
 
-**IntelliJ** does not read `~/.zshrc` when started from the Dock. Either start it from a terminal (`open -a "IntelliJ IDEA"`), or add the three variables to the run configuration template: Run, Edit Configurations, Edit configuration templates, JUnit, Environment variables.
+```bash
+echo 'export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock' >> ~/.zshrc
+```
 
-Check it:
+**3. IntelliJ.** An app started from the Dock or Spotlight does not read `~/.zshrc`, so give IntelliJ the same variable:
+
+- Run, Edit Configurations, **Edit configuration templates...**, JUnit, Environment variables: `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`. New test runs get it from the template.
+- The template does not change run configurations that already exist. If you ran a test before, delete its configuration in the same window, or add the variable to it.
+
+If you use IntelliJ's Maven tool window (Lifecycle, test), add the variable in Settings, Build Tools, Maven, Runner, Environment variables too.
+
+Another way is to start IntelliJ from a terminal with `open -a "IntelliJ IDEA"`, so it gets your shell's variables.
+
+Some guides say `TESTCONTAINERS_RYUK_DISABLED=true`. It also works, but then containers from a killed test run are left behind. The override keeps Ryuk working, so use the override.
+
+### Running the database tests
+
+Docker (or Colima) must be running: `docker ps` must work. Then, in the project folder:
+
+```bash
+mvn test                              # unit tests and @DataJpaTest (Surefire)
+mvn test -Dtest=TaskRepositoryTest    # one test class
+mvn verify                            # everything, including the *IT integration tests (Failsafe)
+```
+
+In IntelliJ, click the green arrow next to the test class or method.
+
+What you should see in the log:
+
+```
+Testcontainers ... Found Docker environment with ...
+Container testcontainers/ryuk:... is starting
+Container postgres:17-alpine is starting
+Container postgres:17-alpine started in PT2S
+Tests run: 5, Failures: 0, Errors: 0
+```
+
+The first run downloads the images and is slow. After that, a run adds only a few seconds.
+
+Check your setup now:
 
 ```bash
 cd files/session-13/task-api-v5
-mvn verify          # the logs show "Container postgres:17-alpine is starting" and end with BUILD SUCCESS
+mvn test -Dtest=TaskRepositoryTest    # BUILD SUCCESS
 ```
 
 ## 6. IntelliJ IDEA
@@ -190,8 +246,10 @@ Testcontainers picks random free ports, so the tests never clash with anything.
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | `Cannot connect to the Docker daemon` | Docker or Colima is not running | `colima start`, or start Docker Desktop |
-| `Could not find a valid Docker environment` (Testcontainers) | Testcontainers cannot find the socket | Colima: the three variables in section 5. Others: `docker ps` must work in the same terminal. |
-| The tests pass in the terminal but fail in IntelliJ with the error above | IntelliJ did not get the variables | Start it from a terminal, or put them in the JUnit template |
+| `Could not find a valid Docker environment` (Testcontainers) | Docker is not running, or Testcontainers cannot find the socket | `docker ps` first. Colima: `~/.testcontainers.properties`, section 5 step 1 |
+| `Could not start container` for `testcontainers/ryuk` | Colima: Ryuk got the Mac socket path, which does not exist in the VM | `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`, section 5 step 2 |
+| The DB tests pass in the terminal but fail in IntelliJ with the Ryuk error | IntelliJ does not read `~/.zshrc` | Put the variable in the JUnit template and delete the old run configuration, section 5 step 3 |
+| The app (`spring-boot:run` or IntelliJ) fails with `No host port mapping found for container port 5432` | The compose containers are running without their published ports (an old or half-created container) | In the project folder: `docker compose down`, then `docker compose up -d`. Do not add `-v`, which deletes the data. |
 | `port is already allocated` | Another container or app uses the port | Section 7. `docker compose down` in the other project. |
 | `release version 25 not supported` | Maven runs with an older JDK | `mvn -v`, then fix `JAVA_HOME` |
 | `docker: 'compose' is not a docker command` | The Compose plugin is not installed or not linked | Colima: the `ln -sfn` lines in section 2 |

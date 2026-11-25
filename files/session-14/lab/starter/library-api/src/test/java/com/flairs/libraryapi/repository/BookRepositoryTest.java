@@ -25,7 +25,7 @@ class BookRepositoryTest {
     @Autowired AuthorRepository authors;
     @Autowired LoanRepository loans;
 
-    // TODO 6
+    // Session 13, TODO 6 (done)
     @Test
     void searchByAuthorIgnoresCase() {
         var page = books.search("ORWELL", PageRequest.of(0, 10, Sort.by("year")));
@@ -39,7 +39,7 @@ class BookRepositoryTest {
         assertThat(books.search(null, PageRequest.of(0, 10)).getTotalElements()).isEqualTo(6);
     }
 
-    // TODO 7
+    // Session 13, TODO 7 (done)
     @Test
     void theDatabaseRejectsADuplicateIsbn() {
         var orwell = authors.findById(1L).orElseThrow();
